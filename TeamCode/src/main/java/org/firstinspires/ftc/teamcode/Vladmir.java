@@ -5,15 +5,10 @@ import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.RevIMU;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.Motor.Encoder;
-import com.arcrobotics.ftclib.hardware.motors.MotorEx;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -27,8 +22,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
  * ports as they are not needed due to not using the drive encoders.
  * The external encoders we are using are REV through-bore.
  */
-@TeleOp(name = "hello")
-public class autonomomomous extends LinearOpMode {
+@TeleOp(name = "John Wilkes Booth")
+public class Vladmir extends LinearOpMode {
 
     // The lateral distance between the left and right odometers
     // is called the trackwidth. This is very important for
@@ -105,29 +100,18 @@ public class autonomomomous extends LinearOpMode {
         camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
 
         waitForStart();
-        boolean x = false;
-        boolean y = false;
 
         while (opModeIsActive() && !isStopRequested()) {
             driveTrain.driveRobotCentric(gPad.getLeftY(), -gPad.getLeftX(), -gPad.getRightX());
 
             if(gamepad1.y){
                 shooter.set(0.85);
-
-                telemetry.addData("y: ", 1);
-                telemetry.update();
-            } else {
-                shooter.set(0);
-            }
-
-            if(gamepad1.a){
+            } else if(gamepad1.a){
                 shooter.set(0.7);
-
-                telemetry.addData("x: ", 1);
-                telemetry.update();
             } else {
                 shooter.set(0);
             }
+
             telemetry.addData("x", odometry.getPose().getX());
             telemetry.addData("y", odometry.getPose().getY());
             telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
