@@ -83,13 +83,11 @@ public class Vladmir extends LinearOpMode {
         gPad = new GamepadEx(gamepad1);
 
         odometrySub = new OdometrySubsystem(odometry);
-/*
+
         zoom = new PurePursuitCommand(driveTrain, odometrySub, new StartWaypoint(0, 0),
                 new GeneralWaypoint(200, 0, 0.8, 0.8, 30),
                 new EndWaypoint(400, 0, 0, 0.5,
                         0.5, 30, 0.8, 1));
-
- */
 
         // Here we set the distance per pulse of the odometers.
         // This is to keep the units consistent for the odometry.
@@ -107,7 +105,7 @@ public class Vladmir extends LinearOpMode {
 
         frontLeft.setInverted(true);
         frontRight.setInverted(true);
-/*
+
         cameraMonitorViewId = this
                 .hardwareMap
                 .appContext
@@ -117,12 +115,11 @@ public class Vladmir extends LinearOpMode {
                         hardwareMap.appContext.getPackageName()
                 );
 
- */
-        //camera = OpenCvCameraFactory
-          //      .getInstance()
-          //      .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
-        //camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
-        //camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
+        camera = OpenCvCameraFactory
+               .getInstance()
+                .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
+        camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
 
         waitForStart();
 
@@ -150,8 +147,8 @@ public class Vladmir extends LinearOpMode {
             telemetry.addData("x", odometry.getPose().getX());
             telemetry.addData("y", odometry.getPose().getY());
             telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
-            //String height = "[HEIGHT]" + " " + pipeline.getHeight();
-            //telemetry.addData("[Ring Stack] >>", height);
+            String height = "[HEIGHT]" + " " + pipeline.getHeight();
+            telemetry.addData("[Ring Stack] >>", height);
             telemetry.update();
             odometry.updatePose();
         }
