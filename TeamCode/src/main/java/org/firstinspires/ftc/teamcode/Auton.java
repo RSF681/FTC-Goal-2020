@@ -1,40 +1,29 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.command.CommandOpMode;
 import com.arcrobotics.ftclib.command.OdometrySubsystem;
 import com.arcrobotics.ftclib.command.PurePursuitCommand;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.RevIMU;
-import com.arcrobotics.ftclib.hardware.ServoEx;
-import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.arcrobotics.ftclib.hardware.motors.Motor.Encoder;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
 import com.arcrobotics.ftclib.purepursuit.waypoints.EndWaypoint;
 import com.arcrobotics.ftclib.purepursuit.waypoints.GeneralWaypoint;
 import com.arcrobotics.ftclib.purepursuit.waypoints.StartWaypoint;
-import com.arcrobotics.ftclib.util.Timing;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-import java.util.Timer;
-
-/**
- * This sample shows how to use dead wheels with external encoders
- * paired with motors that don't require encoders.
- * In this sample, we will use the drive motors' encoder
- * ports as they are not needed due to not using the drive encoders.
- * The external encoders we are using are REV through-bore.
- */
-@TeleOp(name = "John Wilkes Booth")
-public class Vladmir extends LinearOpMode {
+@Autonomous(name = "Charles J. Guiteau")
+@Disabled
+public class Auton extends OpMode {
 
     // The lateral distance between the left and right odometers
     // is called the trackwidth. This is very important for
@@ -53,6 +42,8 @@ public class Vladmir extends LinearOpMode {
     public static final double TICKS_PER_REV = 8192;
     public static final double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
 
+    Boolean z = true;
+
     private UGContourRingPipeline pipeline;
     private OpenCvCamera camera;
 
@@ -60,22 +51,22 @@ public class Vladmir extends LinearOpMode {
     private PurePursuitCommand zoom;
 
     private Motor frontLeft, frontRight, backLeft, backRight, shooter;
-    private SimpleServo kicker;
     private RevIMU imu;
     GamepadEx gPad;
     private MecanumDrive driveTrain;
-    private Encoder leftOdometer, rightOdometer, centerOdometer;
+    private Motor.Encoder leftOdometer, rightOdometer, centerOdometer;
     private HolonomicOdometry odometry;
     private OdometrySubsystem odometrySub;
+
     @Override
-    public void runOpMode() throws InterruptedException {
+    public void init() {
+
         frontLeft = new Motor(hardwareMap, "fL");
         frontRight = new Motor(hardwareMap, "fR");
         backLeft = new Motor(hardwareMap, "bL");
         backRight = new Motor(hardwareMap, "bR");
 
         shooter = new Motor(hardwareMap, "shooter");
-        kicker = new SimpleServo(hardwareMap, "kicker");
 
         driveTrain = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
         imu = new RevIMU(hardwareMap);
@@ -83,13 +74,11 @@ public class Vladmir extends LinearOpMode {
         gPad = new GamepadEx(gamepad1);
 
         odometrySub = new OdometrySubsystem(odometry);
-/*
+
         zoom = new PurePursuitCommand(driveTrain, odometrySub, new StartWaypoint(0, 0),
                 new GeneralWaypoint(200, 0, 0.8, 0.8, 30),
                 new EndWaypoint(400, 0, 0, 0.5,
                         0.5, 30, 0.8, 1));
-
- */
 
         // Here we set the distance per pulse of the odometers.
         // This is to keep the units consistent for the odometry.
@@ -107,7 +96,7 @@ public class Vladmir extends LinearOpMode {
 
         frontLeft.setInverted(true);
         frontRight.setInverted(true);
-/*
+
         cameraMonitorViewId = this
                 .hardwareMap
                 .appContext
@@ -116,45 +105,27 @@ public class Vladmir extends LinearOpMode {
                         "id",
                         hardwareMap.appContext.getPackageName()
                 );
+        camera = OpenCvCameraFactory
+                .getInstance()
+                .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
+        camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
+        camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
 
- */
-        //camera = OpenCvCameraFactory
-          //      .getInstance()
-          //      .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
-        //camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
-        //camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
+    }
 
-        waitForStart();
-
-        while (opModeIsActive() && !isStopRequested()) {
-            driveTrain.driveRobotCentric(gPad.getLeftY(), -gPad.getLeftX(), -gPad.getRightX());
-
-            if(gamepad1.y){
-                shooter.set(0.85);
-            } else if(gamepad1.a){
-                shooter.set(0.7);
-            } else {
-                shooter.set(0);
-            }
+    @Override
 
 
-            if(gamepad1.dpad_up){
-                kicker.turnToAngle(40);
-                Thread.sleep(500);
-                kicker.turnToAngle(-10);
-            }
-
-
-            telemetry.addData("Angle: ", kicker.getAngle());
-
+    public void loop() {
+        while(z){
             telemetry.addData("x", odometry.getPose().getX());
             telemetry.addData("y", odometry.getPose().getY());
             telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
-            //String height = "[HEIGHT]" + " " + pipeline.getHeight();
-            //telemetry.addData("[Ring Stack] >>", height);
+            String height = "[HEIGHT]" + " " + pipeline.getHeight();
+            telemetry.addData("[Ring Stack] >>", height);
             telemetry.update();
             odometry.updatePose();
+            z = false;
         }
     }
-
 }
