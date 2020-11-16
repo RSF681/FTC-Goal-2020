@@ -1,30 +1,22 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.command.OdometrySubsystem;
-import com.arcrobotics.ftclib.command.PurePursuitCommand;
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.RevIMU;
-import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.Motor.Encoder;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
-import com.arcrobotics.ftclib.purepursuit.waypoints.EndWaypoint;
-import com.arcrobotics.ftclib.purepursuit.waypoints.GeneralWaypoint;
-import com.arcrobotics.ftclib.purepursuit.waypoints.StartWaypoint;
-import com.arcrobotics.ftclib.util.Timing;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import java.util.Timer;
 
 /**
  * This sample shows how to use dead wheels with external encoders
@@ -46,7 +38,7 @@ public class Vladmir extends LinearOpMode {
     // This is to correct for the error that might occur when turning.
     // A negative offset means the odometer is closer to the back,
     // while a positive offset means it is closer to the front.
-    public static final double CENTER_WHEEL_OFFSET = 9;
+    public static final double CENTER_WHEEL_OFFSET = 8.8;
 
     public static final double WHEEL_DIAMETER = 1.42;
     // if needed, one can add a gearing term here
@@ -54,12 +46,12 @@ public class Vladmir extends LinearOpMode {
     public static final double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
 
     private UGContourRingPipeline pipeline;
-    private OpenCvCamera camera;
+    //private OpenCvCamera camera;
 
-    private int cameraMonitorViewId;
-    private PurePursuitCommand zoom;
+    //private int cameraMonitorViewId;
+    //private VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-    private Motor frontLeft, frontRight, backLeft, backRight, shooter;
+    private Motor frontLeft, frontRight, backLeft, backRight, shooter, wobbleGoal;
     private SimpleServo kicker;
     private RevIMU imu;
     GamepadEx gPad;
@@ -67,6 +59,7 @@ public class Vladmir extends LinearOpMode {
     private Encoder leftOdometer, rightOdometer, centerOdometer;
     private HolonomicOdometry odometry;
     private OdometrySubsystem odometrySub;
+
     @Override
     public void runOpMode() throws InterruptedException {
         frontLeft = new Motor(hardwareMap, "fL");
@@ -76,6 +69,7 @@ public class Vladmir extends LinearOpMode {
 
         shooter = new Motor(hardwareMap, "shooter");
         kicker = new SimpleServo(hardwareMap, "kicker");
+        wobbleGoal = new Motor(hardwareMap, "wobbleGoal");
 
         driveTrain = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
         imu = new RevIMU(hardwareMap);
@@ -84,16 +78,18 @@ public class Vladmir extends LinearOpMode {
 
         odometrySub = new OdometrySubsystem(odometry);
 
-        zoom = new PurePursuitCommand(driveTrain, odometrySub, new StartWaypoint(0, 0),
-                new GeneralWaypoint(200, 0, 0.8, 0.8, 30),
-                new EndWaypoint(400, 0, 0, 0.5,
-                        0.5, 30, 0.8, 1));
-
         // Here we set the distance per pulse of the odometers.
         // This is to keep the units consistent for the odometry.
         leftOdometer = frontLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
         rightOdometer = frontRight.encoder.setDistancePerPulse(-DISTANCE_PER_PULSE);
         centerOdometer = backLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+
+        frontLeft.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         odometry = new HolonomicOdometry(
                 leftOdometer::getDistance,
@@ -103,9 +99,14 @@ public class Vladmir extends LinearOpMode {
         );
         imu.init();
 
+
         frontLeft.setInverted(true);
         frontRight.setInverted(true);
-
+        wobbleGoal.setInverted(true);
+        wobbleGoal.setRunMode(Motor.RunMode.PositionControl);
+        shooter.setRunMode(Motor.RunMode.VelocityControl);
+        shooter.setVeloCoefficients(0.6,0.03,0);
+/*
         cameraMonitorViewId = this
                 .hardwareMap
                 .appContext
@@ -120,19 +121,24 @@ public class Vladmir extends LinearOpMode {
                 .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
         camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
         camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
-
+*/
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
             driveTrain.driveRobotCentric(gPad.getLeftY(), -gPad.getLeftX(), -gPad.getRightX());
 
+            //double voltage = voltageSensor.getVoltage();
+            //double shooterSpeed = (12.5/voltage);
+
             if(gamepad1.y){
-                shooter.set(0.85);
+                shooter.set(0.77);
             } else if(gamepad1.a){
-                shooter.set(0.7);
+                shooter.set(0.65);
             } else {
                 shooter.set(0);
             }
+
+            //-34, 32
 
 
             if(gamepad1.dpad_up){
@@ -141,14 +147,22 @@ public class Vladmir extends LinearOpMode {
                 kicker.turnToAngle(-10);
             }
 
+            if(gamepad1.dpad_left){
+                //188
+                wobbleGoal.setTargetPosition(20);
+                wobbleGoal.set(0.3);
+            } else if (gamepad1.dpad_right){
+                wobbleGoal.setTargetPosition(0);
+                wobbleGoal.set(-0.3);
+            } else {
+                wobbleGoal.stopMotor();
+            }
+
 
             telemetry.addData("Angle: ", kicker.getAngle());
-
             telemetry.addData("x", odometry.getPose().getX());
             telemetry.addData("y", odometry.getPose().getY());
             telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
-            String height = "[HEIGHT]" + " " + pipeline.getHeight();
-            telemetry.addData("[Ring Stack] >>", height);
             telemetry.update();
             odometry.updatePose();
         }
