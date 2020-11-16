@@ -12,6 +12,7 @@ import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -46,12 +47,12 @@ public class Vladmir extends LinearOpMode {
     public static final double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
 
     private UGContourRingPipeline pipeline;
-    //private OpenCvCamera camera;
+    private OpenCvCamera camera;
 
-    //private int cameraMonitorViewId;
-    //private VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
+    private int cameraMonitorViewId;
+    private VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
-    private Motor frontLeft, frontRight, backLeft, backRight, shooter, wobbleGoal;
+    private Motor frontLeft, frontRight, backLeft, backRight, shooter;
     private SimpleServo kicker;
     private RevIMU imu;
     GamepadEx gPad;
@@ -69,7 +70,7 @@ public class Vladmir extends LinearOpMode {
 
         shooter = new Motor(hardwareMap, "shooter");
         kicker = new SimpleServo(hardwareMap, "kicker");
-        wobbleGoal = new Motor(hardwareMap, "wobbleGoal");
+
 
         driveTrain = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
         imu = new RevIMU(hardwareMap);
@@ -102,11 +103,9 @@ public class Vladmir extends LinearOpMode {
 
         frontLeft.setInverted(true);
         frontRight.setInverted(true);
-        wobbleGoal.setInverted(true);
-        wobbleGoal.setRunMode(Motor.RunMode.PositionControl);
         shooter.setRunMode(Motor.RunMode.VelocityControl);
         shooter.setVeloCoefficients(0.6,0.03,0);
-/*
+
         cameraMonitorViewId = this
                 .hardwareMap
                 .appContext
@@ -121,41 +120,28 @@ public class Vladmir extends LinearOpMode {
                 .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
         camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
         camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
-*/
+
         waitForStart();
 
         while (opModeIsActive() && !isStopRequested()) {
             driveTrain.driveRobotCentric(gPad.getLeftY(), -gPad.getLeftX(), -gPad.getRightX());
 
-            //double voltage = voltageSensor.getVoltage();
-            //double shooterSpeed = (12.5/voltage);
+            double voltage = voltageSensor.getVoltage();
+            double shooterSpeed = (12.5/voltage);
 
             if(gamepad1.y){
-                shooter.set(0.77);
+                shooter.set(0.77 * shooterSpeed);
             } else if(gamepad1.a){
-                shooter.set(0.65);
+                shooter.set(0.65 * shooterSpeed);
             } else {
                 shooter.set(0);
             }
-
             //-34, 32
-
 
             if(gamepad1.dpad_up){
                 kicker.turnToAngle(40);
                 Thread.sleep(500);
                 kicker.turnToAngle(-10);
-            }
-
-            if(gamepad1.dpad_left){
-                //188
-                wobbleGoal.setTargetPosition(20);
-                wobbleGoal.set(0.3);
-            } else if (gamepad1.dpad_right){
-                wobbleGoal.setTargetPosition(0);
-                wobbleGoal.set(-0.3);
-            } else {
-                wobbleGoal.stopMotor();
             }
 
 

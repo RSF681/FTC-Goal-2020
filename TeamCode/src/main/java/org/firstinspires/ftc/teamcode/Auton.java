@@ -30,7 +30,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@Autonomous(name = "Charles J. Guiteau")
+@Autonomous(name = "Experimental Auton")
 
 public class Auton extends OpMode {
 

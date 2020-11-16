@@ -11,7 +11,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.concurrent.TimeUnit;
 
-@Autonomous(name="Kanye East")
+@Autonomous(name="Charles J. Guiteau")
 public class yeEast extends LinearOpMode {
     private Motor frontLeft, backLeft, frontRight, backRight;
 
