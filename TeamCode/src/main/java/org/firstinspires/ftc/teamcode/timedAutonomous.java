@@ -12,7 +12,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="Charles J. Guiteau")
-public class yeEast extends LinearOpMode {
+public class timedAutonomous extends LinearOpMode {
     private Motor frontLeft, backLeft, frontRight, backRight;
 
     private MecanumDrive mecDrive;
