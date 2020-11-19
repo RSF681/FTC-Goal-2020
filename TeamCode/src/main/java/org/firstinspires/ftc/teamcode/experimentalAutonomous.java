@@ -51,11 +51,9 @@ public class experimentalAutonomous extends OpMode {
     public static final double TICKS_PER_REV = 8192;
     public static final double DISTANCE_PER_PULSE = Math.PI * WHEEL_DIAMETER / TICKS_PER_REV;
 
-    Boolean z = true;
-
     private UGContourRingPipeline pipeline;
-    //private VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
-    //private OpenCvCamera camera;
+    private VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
+    private OpenCvCamera camera;
 
     private int cameraMonitorViewId;
     private PurePursuitCommand zoom;
@@ -123,8 +121,8 @@ public class experimentalAutonomous extends OpMode {
         zoom = new PurePursuitCommand(driveTrain, odometrySub,
                 new StartWaypoint(p1),
                 new GeneralWaypoint(3, 28, Math.PI, 0.5, 0.3, 0.5),
-                //new InterruptWaypoint(p1, 0.5, 0.3, 10, 5, 5, () -> height = () -> pipeline.getHeight()),
-                //new InterruptWaypoint(p1, 0.5, 0.3, 10, 5, 5, this::autoAction),
+                new InterruptWaypoint(p1, 0.5, 0.3, 10, 5, 5, () -> height = () -> pipeline.getHeight()),
+                new InterruptWaypoint(p1, 0.5, 0.3, 10, 5, 5, this::autoAction),
                 new EndWaypoint(3, 28, Math.PI, 0.5, 0.3, 0.5, 1, Math.PI/6)
         );
 
@@ -134,7 +132,7 @@ public class experimentalAutonomous extends OpMode {
 
         frontLeft.setInverted(true);
         frontRight.setInverted(true);
-/*
+
         cameraMonitorViewId = this
                 .hardwareMap
                 .appContext
@@ -150,7 +148,7 @@ public class experimentalAutonomous extends OpMode {
         camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
 
 
- */
+
     }
 
     @Override
@@ -163,7 +161,7 @@ public class experimentalAutonomous extends OpMode {
     }
 
     public void autoAction() {
-/*
+
         if (height.get() == UGContourRingPipeline.Height.ZERO) {
             zoom.addWaypoint(new InterruptWaypoint(p2, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH WOBBLE GOAL DROP", 1)));
         } else if (height.get() == UGContourRingPipeline.Height.ONE) {
@@ -172,13 +170,13 @@ public class experimentalAutonomous extends OpMode {
             zoom.addWaypoint(new InterruptWaypoint(p4, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH WOBBLE GOAL DROP", 1)));
         }
 
- */
+
         // interrupts are for powershots
-        /*
+
         zoom.addWaypoint(new InterruptWaypoint(p5, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH POWERSHOT GOAL", 1)));
         zoom.addWaypoint(new InterruptWaypoint(p6, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH POWERSHOT GOAL", 1)));
         zoom.addWaypoint(new InterruptWaypoint(p7, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH POWERSHOT GOAL", 1)));
-        */
+
         //end if for park}
     }
 }
