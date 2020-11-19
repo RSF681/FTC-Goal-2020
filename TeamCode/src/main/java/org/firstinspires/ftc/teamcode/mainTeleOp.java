@@ -52,7 +52,6 @@ public class mainTeleOp extends LinearOpMode {
     private OpenCvCamera camera;
 
     private int cameraMonitorViewId;
-    //private VoltageSensor voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
     private Motor frontLeft, frontRight, backLeft, backRight, shooter;
     private SimpleServo kicker;
@@ -63,6 +62,7 @@ public class mainTeleOp extends LinearOpMode {
     private HolonomicOdometry odometry;
     private OdometrySubsystem odometrySub;
     private ToggleButtonReader buttonReaderY, buttonReaderA;
+    private VoltageSensor voltageSensor;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -83,6 +83,7 @@ public class mainTeleOp extends LinearOpMode {
         odometrySub = new OdometrySubsystem(odometry);
         buttonReaderY = new ToggleButtonReader(gPad, GamepadKeys.Button.Y);
         buttonReaderA = new ToggleButtonReader(gPad, GamepadKeys.Button.A);
+        voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         // Here we set the distance per pulse of the odometers.
         // This is to keep the units consistent for the odometry.
@@ -142,13 +143,13 @@ public class mainTeleOp extends LinearOpMode {
 
             driveTrain.driveRobotCentric(gPad.getLeftY() * x, -gPad.getLeftX() * x, -gPad.getRightX() * x);
 
-            //double voltage = voltageSensor.getVoltage();
-            //double shooterSpeed = (12.5/voltage);
+            double voltage = voltageSensor.getVoltage();
+            double shooterSpeed = (12.35/voltage);
 
             if(buttonReaderY.getState()){
-                shooter.set(0.77);
+                shooter.set(0.77 * shooterSpeed);
             }else if(buttonReaderA.getState()){
-                shooter.set(0.65);
+                shooter.set(0.69 * shooterSpeed);
             }else{
                 shooter.set(0);
             }

@@ -30,6 +30,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
+@Disabled
 @Autonomous(name = "Experimental Auton")
 
 public class experimentalAutonomous extends OpMode {
