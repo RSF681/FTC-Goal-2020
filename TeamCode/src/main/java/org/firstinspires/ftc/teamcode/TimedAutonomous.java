@@ -19,7 +19,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="Charles J. Guiteau")
-public class timedAutonomous extends LinearOpMode {
+public class TimedAutonomous extends LinearOpMode {
     private UGContourRingPipeline pipeline;
     private OpenCvCamera camera;
 
