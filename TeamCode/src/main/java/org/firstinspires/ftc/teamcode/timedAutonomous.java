@@ -5,6 +5,7 @@ import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.util.Timing;
+import com.arcrobotics.ftclib.vision.UGContourRingDetector;
 import com.arcrobotics.ftclib.vision.UGContourRingPipeline;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -66,8 +67,19 @@ public class timedAutonomous extends LinearOpMode {
         telemetry.addData("Started Timer", time.seconds());
         telemetry.update();
 
+        UGContourRingPipeline.Height hgt = pipeline.getHeight();
 
-        if(pipeline.getHeight() == UGContourRingPipeline.Height.ONE){
+        while(opModeIsActive() && time.seconds() < 3) {
+            frontLeft.set(-0.35);
+            frontRight.set(-0.35);
+            backLeft.set(-0.35);
+            backRight.set(-0.35);
+            telemetry.addData("Current time", time.seconds());
+            telemetry.update();
+        }
+
+
+        if(hgt == UGContourRingPipeline.Height.ONE){
             while(opModeIsActive() && time.seconds() < 1.6) {
                 frontLeft.set(-0.7);
                 frontRight.set(-0.7);
@@ -76,7 +88,7 @@ public class timedAutonomous extends LinearOpMode {
                 telemetry.addData("Current time", time.seconds());
                 telemetry.update();
             }
-        } else if (pipeline.getHeight() == UGContourRingPipeline.Height.FOUR){
+        } else if (hgt == UGContourRingPipeline.Height.FOUR){
             while(opModeIsActive() && time.seconds() < 0.10) {
                 frontLeft.set(0.7);
                 frontRight.set(-0.7);
