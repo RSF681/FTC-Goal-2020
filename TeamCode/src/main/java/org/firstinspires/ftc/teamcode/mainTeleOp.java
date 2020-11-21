@@ -111,7 +111,7 @@ public class mainTeleOp extends LinearOpMode {
         frontRight.setInverted(true);
         shooter.setRunMode(Motor.RunMode.VelocityControl);
         shooter.setVeloCoefficients(0.6,0.03,0);
-/*
+
         cameraMonitorViewId = this
                 .hardwareMap
                 .appContext
@@ -122,12 +122,12 @@ public class mainTeleOp extends LinearOpMode {
                 );
 
         camera = OpenCvCameraFactory
-               .getInstance()
+                .getInstance()
                 .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
         camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
         camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
 
- */
+
 
         waitForStart();
 
@@ -159,13 +159,14 @@ public class mainTeleOp extends LinearOpMode {
             //-34, 32
 
 
-            if(gamepad1.dpad_up){
+            if(gamepad1.right_trigger >= 0.75){
                 kicker.turnToAngle(40);
-                Thread.sleep(500);
+                Thread.sleep(300);
                 kicker.turnToAngle(-10);
             }
 
             //telemetry.addData("Angle: ", kicker.getAngle());
+            telemetry.addData("Stack Height", pipeline.getHeight());
             telemetry.addData("x", odometry.getPose().getX());
             telemetry.addData("y", odometry.getPose().getY());
             telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
