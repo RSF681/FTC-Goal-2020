@@ -71,12 +71,6 @@ public class MainTeleOp extends LinearOpMode {
         backLeft = new Motor(hardwareMap, "bL");
         backRight = new Motor(hardwareMap, "bR");
 
-        frontLeft.setRunMode(Motor.RunMode.VelocityControl);
-        frontRight.setRunMode(Motor.RunMode.VelocityControl);
-        backLeft.setRunMode(Motor.RunMode.VelocityControl);
-        backRight.setRunMode(Motor.RunMode.VelocityControl);
-
-
         shooter = new Motor(hardwareMap, "shooter");
         kicker = new SimpleServo(hardwareMap, "kicker");
 

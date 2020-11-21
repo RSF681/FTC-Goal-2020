@@ -69,6 +69,16 @@ public class DriveTeleOp extends LinearOpMode {
 
         driveTrain = new SpicyMecanumDrive(frontLeft, frontRight, backLeft, backRight, 0.71724137931);
 
+        frontLeft.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontLeft.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        frontRight.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        frontRight.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        backLeft.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        backLeft.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        frontLeft.setInverted(true);
+        frontRight.setInverted(true);
+
         gPad = new GamepadEx(gamepad1);
 
         waitForStart();
