@@ -1,11 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.mtp.MtpConstants;
+
 import com.arcrobotics.ftclib.command.OdometrySubsystem;
+import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
 import com.arcrobotics.ftclib.hardware.RevIMU;
-import com.arcrobotics.ftclib.hardware.SimpleServo;
+import com.arcrobotics.ftclib.hardware.motors.CRServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.Motor.Encoder;
 import com.arcrobotics.ftclib.kinematics.HolonomicOdometry;
@@ -16,7 +19,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.util.SpicyMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -53,14 +55,13 @@ public class MainTeleOp extends LinearOpMode {
 
     private int cameraMonitorViewId;
 
-    private Motor frontLeft, frontRight, backLeft, backRight, shooter;
-    private SimpleServo kicker;
+    private Motor frontLeft, frontRight, backLeft, backRight, shooter; /*intake*/
+    private CRServo kicker;
     private RevIMU imu;
     GamepadEx gPad;
-    private SpicyMecanumDrive driveTrain;
-    private Encoder leftOdometer, rightOdometer, centerOdometer;
-    private HolonomicOdometry odometry;
-    private OdometrySubsystem odometrySub;
+    private MecanumDrive driveTrain;
+    //private Encoder leftOdometer, rightOdometer, centerOdometer;
+    //private OdometrySubsystem odometry;
     private ToggleButtonReader buttonReaderY, buttonReaderA;
     private VoltageSensor voltageSensor;
 
@@ -71,25 +72,24 @@ public class MainTeleOp extends LinearOpMode {
         backLeft = new Motor(hardwareMap, "bL");
         backRight = new Motor(hardwareMap, "bR");
 
+        // intake = new Motor(hardwareMap, "intake");
         shooter = new Motor(hardwareMap, "shooter");
-        kicker = new SimpleServo(hardwareMap,"kicker");
+        kicker = new CRServo(hardwareMap, "kicker");
 
-
-        driveTrain = new SpicyMecanumDrive(frontLeft, frontRight, backLeft, backRight, 0.71724137931);
+        driveTrain = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
         imu = new RevIMU(hardwareMap);
 
         gPad = new GamepadEx(gamepad1);
 
-        odometrySub = new OdometrySubsystem(odometry);
         buttonReaderY = new ToggleButtonReader(gPad, GamepadKeys.Button.Y);
         buttonReaderA = new ToggleButtonReader(gPad, GamepadKeys.Button.A);
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         // Here we set the distance per pulse of the odometers.
         // This is to keep the units consistent for the odometry.
-        leftOdometer = frontLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
-        rightOdometer = frontRight.encoder.setDistancePerPulse(-DISTANCE_PER_PULSE);
-        centerOdometer = backLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+        //leftOdometer = frontLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
+        //rightOdometer = frontRight.encoder.setDistancePerPulse(-DISTANCE_PER_PULSE);
+        //centerOdometer = backLeft.encoder.setDistancePerPulse(DISTANCE_PER_PULSE);
 
         frontLeft.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontLeft.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -97,13 +97,14 @@ public class MainTeleOp extends LinearOpMode {
         frontRight.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         backLeft.motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backLeft.motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        odometry = new HolonomicOdometry(
+/*
+        odometry = new OdometrySubsystem(new HolonomicOdometry(
                 leftOdometer::getDistance,
                 rightOdometer::getDistance,
                 centerOdometer::getDistance,
                 TRACKWIDTH, CENTER_WHEEL_OFFSET
-        );
+        ));
+*/
         imu.init();
 
 
@@ -156,22 +157,25 @@ public class MainTeleOp extends LinearOpMode {
 
             buttonReaderY.readValue();
             buttonReaderA.readValue();
-            //-34, 32
 
 
             if(gamepad1.right_trigger >= 0.75){
-                kicker.turnToAngle(40);
+                kicker.set(0.4);
                 Thread.sleep(300);
-                kicker.turnToAngle(-10);
+                kicker.set(-0.1);
             }
-
+/*
+            if(gamepad1.dpad_up){
+                intake.set(1);
+            }
+*/
             //telemetry.addData("Angle: ", kicker.getAngle());
-            telemetry.addData("Stack Height", pipeline.getHeight());
-            telemetry.addData("x", odometry.getPose().getX());
-            telemetry.addData("y", odometry.getPose().getY());
-            telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
+            //telemetry.addData("Stack Height", pipeline.getHeight());
+            //telemetry.addData("x", odometry.getPose().getX());
+            //telemetry.addData("y", odometry.getPose().getY());
+            //telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
             telemetry.update();
-            odometry.updatePose();
+            //odometry.update();
         }
     }
 

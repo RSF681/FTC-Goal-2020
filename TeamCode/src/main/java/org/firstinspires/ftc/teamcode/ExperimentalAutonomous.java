@@ -58,7 +58,6 @@ public class ExperimentalAutonomous extends OpMode {
 
     private int cameraMonitorViewId;
     private PurePursuitCommand zoom;
-    private Pose2d p1, p2, p3, p4, p5, p6, p7;
     private Supplier<UGContourRingPipeline.Height> height;
 
     private Motor frontLeft, frontRight, backLeft, backRight, shooter;
@@ -66,8 +65,7 @@ public class ExperimentalAutonomous extends OpMode {
     GamepadEx gPad;
     private MecanumDrive driveTrain;
     private Motor.Encoder leftOdometer, rightOdometer, centerOdometer;
-    private HolonomicOdometry odometry;
-    private OdometrySubsystem odometrySub;
+    private OdometrySubsystem odometry;
 
     @Override
     public void init() {
@@ -83,14 +81,6 @@ public class ExperimentalAutonomous extends OpMode {
         imu = new RevIMU(hardwareMap);
 
         gPad = new GamepadEx(gamepad1);
-
-        p1 = new Pose2d(0, 0, new Rotation2d(0));
-        p2 = new Pose2d(-53, 124, new Rotation2d(90));
-        p3 = new Pose2d(-64, 137, new Rotation2d(90));
-        p4 = new Pose2d(-43, 156, new Rotation2d(90));
-        p5 = new Pose2d(-58, 129, new Rotation2d(0));
-        p6 = new Pose2d(-57, 129, new Rotation2d(0));
-        p7 = new Pose2d(-56, 129, new Rotation2d(0));
 
         // Here we set the distance per pulse of the odometers.
         // This is to keep the units consistent for the odometry.
@@ -110,26 +100,21 @@ public class ExperimentalAutonomous extends OpMode {
         rightOdometer.reset();
         centerOdometer.reset();
 
-        odometry = new HolonomicOdometry(
+        odometry = new OdometrySubsystem(new HolonomicOdometry(
                 leftOdometer::getDistance,
                 rightOdometer::getDistance,
                 centerOdometer::getDistance,
                 TRACKWIDTH, CENTER_WHEEL_OFFSET
-        );
+        ));
 
-        odometrySub = new OdometrySubsystem(odometry);
-
-        zoom = new PurePursuitCommand(driveTrain, odometrySub,
-                new StartWaypoint(p1),
+        zoom = new PurePursuitCommand(driveTrain, odometry,
+                new StartWaypoint(0, 0),
                 new GeneralWaypoint(3, 28, Math.PI, 0.5, 0.3, 0.5),
-                new InterruptWaypoint(p1, 0.5, 0.3, 10, 5, 5, () -> height = () -> pipeline.getHeight()),
-                new InterruptWaypoint(p1, 0.5, 0.3, 10, 5, 5, this::autoAction),
                 new EndWaypoint(3, 28, Math.PI, 0.5, 0.3, 0.5, 1, Math.PI/6)
         );
 
-
         imu.init();
-        zoom.schedule();
+        zoom.initialize();
 
         frontLeft.setInverted(true);
         frontRight.setInverted(true);
@@ -148,36 +133,29 @@ public class ExperimentalAutonomous extends OpMode {
         camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
         camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
 
-
-
     }
 
     @Override
     public void loop() {
-        CommandScheduler.getInstance().run();
+        zoom.execute();
 
-        telemetry.addData("x", odometrySub.getPose().getX());
-        telemetry.addData("y", odometrySub.getPose().getY());
-        telemetry.addData("heading", odometrySub.getPose().getRotation().getDegrees());
+        telemetry.addData("x", odometry.getPose().getX());
+        telemetry.addData("y", odometry.getPose().getY());
+        telemetry.addData("heading", odometry.getPose().getRotation().getDegrees());
     }
 
     public void autoAction() {
 
         if (height.get() == UGContourRingPipeline.Height.ZERO) {
-            zoom.addWaypoint(new InterruptWaypoint(p2, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH WOBBLE GOAL DROP", 1)));
+            // TEST CASE
         } else if (height.get() == UGContourRingPipeline.Height.ONE) {
-            zoom.addWaypoint(new InterruptWaypoint(p3, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH WOBBLE GOAL DROP", 1)));
+            // TEST CASE
         } else {
-            zoom.addWaypoint(new InterruptWaypoint(p4, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH WOBBLE GOAL DROP", 1)));
+            // TEST CASE
         }
 
 
         // interrupts are for powershots
-
-        zoom.addWaypoint(new InterruptWaypoint(p5, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH POWERSHOT GOAL", 1)));
-        zoom.addWaypoint(new InterruptWaypoint(p6, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH POWERSHOT GOAL", 1)));
-        zoom.addWaypoint(new InterruptWaypoint(p7, 0.5, 0.3, 10, 5, 5, () -> telemetry.addData("UPDATE WITH POWERSHOT GOAL", 1)));
-
         //end if for park}
     }
 }
