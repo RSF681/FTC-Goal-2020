@@ -72,7 +72,7 @@ public class mainTeleOp extends LinearOpMode {
         backRight = new Motor(hardwareMap, "bR");
 
         shooter = new Motor(hardwareMap, "shooter");
-        kicker = new SimpleServo(hardwareMap, "kicker");
+        kicker = new SimpleServo(hardwareMap,"kicker");
 
 
         driveTrain = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
