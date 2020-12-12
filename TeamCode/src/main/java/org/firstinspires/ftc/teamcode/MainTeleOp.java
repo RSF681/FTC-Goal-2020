@@ -60,7 +60,7 @@ public class MainTeleOp extends LinearOpMode {
     private MecanumDrive driveTrain;
     //private Encoder leftOdometer, rightOdometer, centerOdometer;
     //private OdometrySubsystem odometry;
-    private ToggleButtonReader buttonReaderY, buttonReaderA, buttonReaderX;
+    private ToggleButtonReader buttonReaderY, buttonReaderA, buttonReaderX, buttonReaderB;
     private VoltageSensor voltageSensor;
 
     @Override
@@ -83,6 +83,7 @@ public class MainTeleOp extends LinearOpMode {
         buttonReaderY = new ToggleButtonReader(gPad, GamepadKeys.Button.Y);
         buttonReaderA = new ToggleButtonReader(gPad, GamepadKeys.Button.A);
         buttonReaderX = new ToggleButtonReader(gPad, GamepadKeys.Button.X);
+        buttonReaderB = new ToggleButtonReader(gPad, GamepadKeys.Button.B);
         voltageSensor = hardwareMap.voltageSensor.iterator().next();
 
         // Here we set the distance per pulse of the odometers.
@@ -173,7 +174,9 @@ public class MainTeleOp extends LinearOpMode {
 
             if(buttonReaderX.getState()){
                 intake.set(1);
-            } else {
+            } else if(buttonReaderB.getState()) {
+                intake.set(-1);
+            } else if(!buttonReaderB.getState() || !buttonReaderB.getState()) {
                 intake.set(0);
             }
 
