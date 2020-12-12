@@ -20,10 +20,10 @@ import java.util.concurrent.TimeUnit;
 
 @Autonomous(name="Charles J. Guiteau")
 public class TimedAutonomous extends LinearOpMode {
-    private UGContourRingPipeline pipeline;
-    private OpenCvCamera camera;
+    //private UGContourRingPipeline pipeline;
+    //private OpenCvCamera camera;
 
-    private int cameraMonitorViewId;
+    //private int cameraMonitorViewId;
 
     private Motor frontLeft, backLeft, frontRight, backRight;
 
@@ -40,7 +40,7 @@ public class TimedAutonomous extends LinearOpMode {
 
         mecDrive = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
 
-
+/*
         cameraMonitorViewId = this
                 .hardwareMap
                 .appContext
@@ -55,7 +55,7 @@ public class TimedAutonomous extends LinearOpMode {
                 .createWebcam(hardwareMap.get(WebcamName.class, "Jesus"), cameraMonitorViewId);
         camera.setPipeline(pipeline = new UGContourRingPipeline(telemetry, true));
         camera.openCameraDeviceAsync(() -> camera.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT));
-
+*/
         waitForStart();
 
         frontLeft.set(0);
@@ -67,17 +67,17 @@ public class TimedAutonomous extends LinearOpMode {
         telemetry.addData("Started Timer", time.seconds());
         telemetry.update();
 
-        UGContourRingPipeline.Height hgt = pipeline.getHeight();
+        //UGContourRingPipeline.Height hgt = pipeline.getHeight();
 
-        while(opModeIsActive() && time.seconds() < 3) {
+        while(opModeIsActive() && time.seconds() < 2.5) {
             frontLeft.set(-0.35);
-            frontRight.set(-0.35);
+            frontRight.set(0.35);
             backLeft.set(-0.35);
-            backRight.set(-0.35);
+            backRight.set(0.35);
             telemetry.addData("Current time", time.seconds());
             telemetry.update();
         }
-
+/*
 
         if(hgt == UGContourRingPipeline.Height.ONE){
             while(opModeIsActive() && time.seconds() < 1.6) {
@@ -128,7 +128,8 @@ public class TimedAutonomous extends LinearOpMode {
                 telemetry.addData("Current time", time.seconds());
                 telemetry.update();
             }
+
+ */
         }
-    }
 }
 
